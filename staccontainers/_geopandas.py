@@ -28,3 +28,15 @@ def _(obj: pystac.ItemCollection) -> "geopandas.GeoDataFrame":
     )
 
     return df
+
+
+@to_geopandas.register
+def _(obj: pystac.Asset) -> "geopandas.GeoDataFrame":
+    storage_options = obj.extra_fields.get("table:storage_options", {})
+    # TODO: media-type based dispatch.
+    return geopandas.read_parquet(obj.href, storage_options=storage_options)
+
+
+
+pystac.Asset.to_geopandas = to_geopandas
+pystac.ItemCollection.to_geopandas = to_geopandas

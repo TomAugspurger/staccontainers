@@ -60,3 +60,11 @@ def _(obj: pystac_client.ItemSearch, **kwargs) -> "xarray.Dataset":
     ic = obj.get_all_items()
     return to_xarray(ic, **kwargs)
 
+
+
+# le monkeypatches
+
+pystac.Item.to_xarray = to_xarray
+pystac.ItemCollection.to_xarray = to_xarray
+pystac.Asset.to_xarray = to_xarray
+pystac_client.ItemSearch.to_xarray = to_xarray
