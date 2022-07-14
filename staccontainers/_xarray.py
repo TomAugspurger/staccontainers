@@ -32,13 +32,14 @@ def _(
 def _(obj: pystac.Asset, driver=None, **kwargs) -> "xarray.Dataset":
     # now dispatch on the driver / media type
     # xarray = _import_optional_dependency(_OptionalDependencies.xarray)
+    import planetary_computer
+    import fsspec
+    import stackstac
 
     if obj.media_type == pystac.MediaType.JSON and "index" in obj.roles:
         # planetary_computer = _import_optional_dependency(
         #     _OptionalDependencies.planetary_computer
         # )
-        import planetary_computer
-        import fsspec
         # fsspec = _import_optional_dependency(_OptionalDependencies.fsspec)
 
         # TODO: fix fix this. Maybe make a pc filesystem that auto-signs.
@@ -51,10 +52,16 @@ def _(obj: pystac.Asset, driver=None, **kwargs) -> "xarray.Dataset":
         mapper = fsspec.get_mapper("reference://", fo=refs)
         kwargs = {**{"engine": "zarr", "consolidated": False, "chunks": {}}, **kwargs}
         return xarray.open_dataset(mapper, **kwargs)
+    elif obj.media_type == pystac.MediaType.COG:
+        open_kwargs = obj.extra_fields.get("xarray:open_kwargs", {})
+        open_kwargs = {**open_kwargs, **kwargs}
+        open_kwargs.setdefault("engine", "rasterio")
+        ds = xarray.open_dataset(obj.href, **open_kwargs)
     else:
         open_kwargs = obj.extra_fields.get("xarray:open_kwargs", {})
         open_kwargs = {**open_kwargs, **kwargs}
         ds = xarray.open_dataset(obj.href, **open_kwargs)
+
     return ds
 
 
