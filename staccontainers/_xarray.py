@@ -24,7 +24,7 @@ def _(
 ) -> "xarray.Dataset":
     # driver = driver or _infer_driver(item)
     stackstac = _import_optional_dependency(_OptionalDependencies.stackstac)
-    return stackstac.stack(obj, **kwargs).to_dataset(name="data")
+    return stackstac.stack(obj, **kwargs).to_dataset(dim="band", promote_attrs=True)
 
 
 @to_xarray.register
