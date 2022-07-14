@@ -1,6 +1,7 @@
 import functools
 
 import pystac
+import pystac_client
 import geopandas
 import shapely
 import pandas
@@ -37,6 +38,12 @@ def _(obj: pystac.Asset) -> "geopandas.GeoDataFrame":
     return geopandas.read_parquet(obj.href, storage_options=storage_options)
 
 
+@to_geopandas.register
+def _(obj: pystac_client.ItemSearch, **kwargs) -> "geopandas.GeoDataFrame":
+    ic = obj.get_all_items()
+    return to_geopandas(ic, **kwargs)
+
 
 pystac.Asset.to_geopandas = to_geopandas
 pystac.ItemCollection.to_geopandas = to_geopandas
+pystac_client.ItemSearch.to_geopandas = to_geopandas

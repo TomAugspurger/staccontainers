@@ -6,7 +6,7 @@ import pystac_client
 import requests
 import xarray
 
-from staccontainers._utils import _import_optional_dependency, _OptionalDependencies
+# from staccontainers._utils import _import_optional_dependency, _OptionalDependencies
 
     
 
@@ -23,20 +23,23 @@ def _(
     obj: Union[pystac.Item, pystac.ItemCollection], driver=None, **kwargs
 ) -> "xarray.Dataset":
     # driver = driver or _infer_driver(item)
-    stackstac = _import_optional_dependency(_OptionalDependencies.stackstac)
+    import stackstac
+    # stackstac = _import_optional_dependency(_OptionalDependencies.stackstac)
     return stackstac.stack(obj, **kwargs).to_dataset(dim="band", promote_attrs=True)
 
 
 @to_xarray.register
 def _(obj: pystac.Asset, driver=None, **kwargs) -> "xarray.Dataset":
     # now dispatch on the driver / media type
-    xarray = _import_optional_dependency(_OptionalDependencies.xarray)
+    # xarray = _import_optional_dependency(_OptionalDependencies.xarray)
 
     if obj.media_type == pystac.MediaType.JSON and "index" in obj.roles:
-        planetary_computer = _import_optional_dependency(
-            _OptionalDependencies.planetary_computer
-        )
-        fsspec = _import_optional_dependency(_OptionalDependencies.fsspec)
+        # planetary_computer = _import_optional_dependency(
+        #     _OptionalDependencies.planetary_computer
+        # )
+        import planetary_computer
+        import fsspec
+        # fsspec = _import_optional_dependency(_OptionalDependencies.fsspec)
 
         # TODO: fix fix this. Maybe make a pc filesystem that auto-signs.
         # Then use URLs like reference::pc::https://...
