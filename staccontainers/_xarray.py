@@ -31,20 +31,10 @@ def _(
 @to_xarray.register
 def _(obj: pystac.Asset, driver=None, **kwargs) -> "xarray.Dataset":
     # now dispatch on the driver / media type
-    # xarray = _import_optional_dependency(_OptionalDependencies.xarray)
     import planetary_computer
     import fsspec
-    import stackstac
 
     if obj.media_type == pystac.MediaType.JSON and "index" in obj.roles:
-        # planetary_computer = _import_optional_dependency(
-        #     _OptionalDependencies.planetary_computer
-        # )
-        # fsspec = _import_optional_dependency(_OptionalDependencies.fsspec)
-
-        # TODO: fix fix this. Maybe make a pc filesystem that auto-signs.
-        # Then use URLs like reference::pc::https://...
-
         r = requests.get(obj.href)
         r.raise_for_status()
 
@@ -57,6 +47,8 @@ def _(obj: pystac.Asset, driver=None, **kwargs) -> "xarray.Dataset":
         open_kwargs = {**open_kwargs, **kwargs}
         open_kwargs.setdefault("engine", "rasterio")
         ds = xarray.open_dataset(obj.href, **open_kwargs)
+    elif obj.media_type == "application/vnd+zarr":
+        return _open_asset_zarr(obj)
     else:
         open_kwargs = obj.extra_fields.get("xarray:open_kwargs", {})
         open_kwargs = {**open_kwargs, **kwargs}
@@ -65,16 +57,21 @@ def _(obj: pystac.Asset, driver=None, **kwargs) -> "xarray.Dataset":
     return ds
 
 
+def _open_asset_zarr(asset: pystac.Asset, **kwargs) -> xarray.Dataset:
+    kwargs = {**kwargs, **asset.extra_fields.get("xarray:open_kwargs", {})}
+    kwargs.setdefault("engine", "zarr")
+
+    return xarray.open_dataset(asset.href, **kwargs)
+
+
 @to_xarray.register
 def _(obj: pystac_client.ItemSearch, **kwargs) -> "xarray.Dataset":
     ic = obj.get_all_items()
     return to_xarray(ic, **kwargs)
 
 
-
-# le monkeypatches
-
-pystac.Item.to_xarray = to_xarray
-pystac.ItemCollection.to_xarray = to_xarray
-pystac.Asset.to_xarray = to_xarray
-pystac_client.ItemSearch.to_xarray = to_xarray
+def _patch():
+    pystac.Item.to_xarray = to_xarray
+    pystac.ItemCollection.to_xarray = to_xarray
+    pystac.Asset.to_xarray = to_xarray
+    pystac_client.ItemSearch.to_xarray = to_xarray

@@ -17,4 +17,5 @@ def _(obj: pystac.Asset) -> "dask_geopandas.GeoDataFrame":
     return dask_geopandas.read_parquet(obj.href, storage_options=storage_options)
 
 
-pystac.Asset.to_dask_geopandas = to_dask_geopandas
+def _patch():
+    pystac.Asset.to_dask_geopandas = to_dask_geopandas
