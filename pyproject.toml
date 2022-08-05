@@ -25,8 +25,29 @@ complete = [
     "dask[complete]",
     "geopandas",
     "pandas",
-    "planetary-computer",
+    # "planetary-computer",
     "stackstac",
     "odc-stac",
     "xarray",
+]
+
+geopandas = [
+    "geopandas"
+]
+
+dask = [
+    "dask[complete]",
+    "dask-geopandas"
+]
+
+xarray = [
+    "xarray",
+    "stackstac",
+    "odc-stack",
+]
+
+docs = [
+    "sphinx",
+    "pydata-sphinx-theme",
+    "myst-parser",
 ]
